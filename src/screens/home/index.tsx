@@ -52,7 +52,7 @@ export default function Home() {
       try {
         const response = await axios<any>({
           method: "post",
-          url: `${import.meta.env.VITE_API_URL}/calculate`,
+          url: `${import.meta.env.VITE_API_URL}/`,
           data: {
             image: canvas.toDataURL("image/jpeg", 0.7), //reducing the quality to 70% for better performance
             dict_of_vars: dictOfVars,
