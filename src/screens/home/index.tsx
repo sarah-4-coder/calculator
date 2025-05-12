@@ -120,6 +120,41 @@ export default function Home() {
     setIsDrawing(false);
   };
 
+  const startTouch = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const ctx = canvas.getContext("2d");
+      const touch = e.touches[0];
+      if (ctx && touch) {
+        ctx.beginPath();
+        ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        setIsDrawing(true);
+        setShowResult(false);
+      }
+    }
+  };
+
+  const moveTouch = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const ctx = canvas.getContext("2d");
+      const touch = e.touches[0];
+      if (ctx && touch) {
+        ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+    }
+  };
+
+  const endTouch = () => {
+    setIsDrawing(false);
+  };
+
   const resetCanvas = () => {
     const canvas = canvasRef.current;
     if (canvas) {
@@ -180,11 +215,15 @@ export default function Home() {
       <canvas
         ref={canvasRef}
         id="canvas"
-        className="absolute top-0 left-0 w-full h-full"
+        className="absolute top-0 left-0 w-full h-full touch-none"
         onMouseDown={startDrawing}
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseOut={stopDrawing}
+        onTouchStart={startTouch}
+        onTouchMove={moveTouch}
+        onTouchEnd={endTouch}
+        onTouchCancel={endTouch}
       />
     </>
   );
