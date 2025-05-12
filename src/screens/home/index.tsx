@@ -45,32 +45,35 @@ export default function Home() {
   }, []);
 
   const sendData = async () => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      if (loading) return; //this will prevent multiple requests at the same time :-Throttle optimization
-      setLoading(true);
-      try {
-        const response = await axios<any>({
-          method: "post",
-          url: `${import.meta.env.VITE_API_URL}/calculate`,
-          data: {
-            image: canvas.toDataURL("image/jpeg", 0.7), //reducing the quality to 70% for better performance
-            dict_of_vars: dictOfVars,
-          },
-        });
+  const canvas = canvasRef.current;
+  if (canvas) {
+    if (loading) return; // Prevent multiple clicks
+    setLoading(true);
+    try {
+      const response = await axios<any>({
+        method: "post",
+        url: `${import.meta.env.VITE_API_URL}/calculate`,
+        data: {
+          image: canvas.toDataURL("image/jpeg", 0.7), // Compress image
+          dict_of_vars: dictOfVars,
+        },
+      });
 
-        const res = response.data;
-        console.log("Full Response:", res);
+      const res = response.data;
+      console.log("Full Response:", res);
 
-        if (
-          res.status === "success" &&
-          Array.isArray(res.data) &&
-          res.data.length > 0
-        ) {
-          const firstResult = res.data[0];
+      if (
+        res.status === "success" &&
+        Array.isArray(res.data) &&
+        res.data.length > 0
+      ) {
+        // 🔁 Find the last result that's not a variable assignment
+        const lastNonAssign = res.data.findLast((item: any) => !item.assign);
+
+        if (lastNonAssign) {
           setResult({
-            expression: firstResult.expr,
-            answer: firstResult.result,
+            expression: lastNonAssign.expr,
+            answer: lastNonAssign.result,
           });
           setShowResult(true);
 
@@ -79,13 +82,15 @@ export default function Home() {
             setShowResult(false);
           }, 5000);
         }
-      } catch (error) {
-        console.error("Error sending data:", error);
-      } finally {
-        setLoading(false);
       }
+    } catch (error) {
+      console.error("Error sending data:", error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }
+};
+
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
