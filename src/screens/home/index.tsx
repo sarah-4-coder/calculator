@@ -123,6 +123,7 @@ export default function Home() {
   const startTouch = (e: React.TouchEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (canvas) {
+      canvas.style.background = "black";
       const rect = canvas.getBoundingClientRect();
       const ctx = canvas.getContext("2d");
       const touch = e.touches[0];
